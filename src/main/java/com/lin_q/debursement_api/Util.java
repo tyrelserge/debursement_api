@@ -1,4 +1,4 @@
-package com.lin_q.debursement_api.exception;
+package com.lin_q.debursement_api;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -28,12 +28,12 @@ public class Util {
     //     Util.userProvisioningService = userProvisioningService;
     // }
 
-    // public static void arSave(String remoteAddr, String action, String requestStatus) {
-    //     try {
-    //         userProvisioningService.saveActionRequest(remoteAddr, action, requestStatus);            
-    //     } catch (NullPointerException e) {
-    //         e.getStackTrace();
-    //     }
-    // }
+    public static void arSave(String remoteAddr, String action, String requestStatus) {
+        try {
+            // userProvisioningService.saveActionRequest(remoteAddr, action, requestStatus);            
+        } catch (NullPointerException e) {
+            e.getStackTrace();
+        }
+    }
 
 }
