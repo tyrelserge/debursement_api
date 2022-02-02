@@ -4,6 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
+import com.lin_q.debursement_api.service.UserService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class Util {
     
     private static Util util;
@@ -21,16 +25,16 @@ public class Util {
         return uuidAsString;
     }
 
-    // private static UserProvisioningService userProvisioningService;
+    private static UserService userService;
 
-    // @Autowired
-    // public void setUserProvisioningService(UserProvisioningService userProvisioningService) {
-    //     Util.userProvisioningService = userProvisioningService;
-    // }
+    @Autowired
+    public void setUserService(UserService userService) {
+        Util.userService = userService;
+    }
 
     public static void arSave(String remoteAddr, String action, String requestStatus) {
         try {
-            // userProvisioningService.saveActionRequest(remoteAddr, action, requestStatus);            
+            userService.saveActionRequest(remoteAddr, action, requestStatus);            
         } catch (NullPointerException e) {
             e.getStackTrace();
         }

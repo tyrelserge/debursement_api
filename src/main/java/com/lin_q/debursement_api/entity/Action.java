@@ -19,8 +19,6 @@ public class Action {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "action_id")
     private Integer actionId;
-    @Column(name = "generalsetting_id")
-    private Integer generalsettingId;
     @Column(name = "action_type")
     private String actionType;
     @Column(name = "action_value")

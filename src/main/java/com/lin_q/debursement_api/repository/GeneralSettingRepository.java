@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GeneralSettingRepository extends JpaRepository<GeneralSetting, String> {
+
+    public GeneralSetting findByStatus(String status);
     
 }

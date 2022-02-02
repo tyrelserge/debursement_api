@@ -1,11 +1,11 @@
 package com.lin_q.debursement_api.repository;
 
-import com.lin_q.debursement_api.entity.Service;
+import com.lin_q.debursement_api.entity.Department;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ServiceRepository extends JpaRepository<Service, Integer> {
+public interface DepartmentRepository extends JpaRepository<Department, Integer> {
     
 }

@@ -13,18 +13,20 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "role_profile")
-public class RoleProfile {
+@Table(name = "role")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "roleprofile_id")
-    private Integer roleprofileId;
-    @Column(name = "roleprofile_name")
-    private String roleprofileName;
+    @Column(name = "role_id")
+    private Integer roleId;
+    @Column(name = "user_id")
+    private Integer userId;
+    @Column(name = "role_name") 
+    private String roleName;
     @Column(name = "role_level")
-    private String roleLevel;
-    @Column(name = "created_on")
-    private Date createdOn; 
-    @Column(name = "updated_on")
-    private Date updatedOn;
+    private Integer roleLevel;
+    @Column(name = "created_date")
+    private Date createdDate; 
+    @Column(name = "updated_date")
+    private Date updatedDate;
 }

@@ -13,16 +13,18 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "service")
-public class Service {
+@Table(name = "profile")
+public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "service_id")
-    private Integer serviceId;
+    @Column(name = "profile_id")
+    private Integer profileId;
     @Column(name = "user_id")
     private Integer userId;
-    @Column(name = "service_name")
-    private String serviceName;
+    @Column(name = "profile_name")
+    private String profileName;
+    @Column(name = "profile_level")
+    private String profileLevel;
     @Column(name = "created_on")
     private Date createdOn; 
     @Column(name = "updated_on")

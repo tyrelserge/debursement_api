@@ -24,17 +24,17 @@ public class Debursement {
     @Column(name = "user_id")
     private Integer userId;
     private String registration;
-    @Column(name = "created_on")
-    private Date createdOn; 
-    private String reason;
+    private String reason; 
     @Column(name = "amount_requested")
     private Integer amountRequested;
+    @Column(name = "recipient_id")
+    private Integer recipientId;
+    @Column(name = "created_on")
+    private Date createdOn;
     @Column(name = "updated_on")
     private Date updatedOn; 
     @Column(name = "amount_approved")
     private Integer amountApproved;
-    @Column(name = "recipient_id")
-    private Integer recipientId;
     @Column(name = "activate_debursement")
     private Date activateDebursement;
 }

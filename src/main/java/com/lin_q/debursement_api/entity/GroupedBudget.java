@@ -19,6 +19,8 @@ public class GroupedBudget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "groupedbudget_id")
     private Integer groupedbudgetId;
+    @Column(name = "user_id")
+    private Integer userId;
     @Column(name = "budgsector_id")
     private Integer budgsectorId;
     @Column(name = "groupedbudget_name")

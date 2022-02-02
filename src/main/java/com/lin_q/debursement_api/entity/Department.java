@@ -1,5 +1,6 @@
 package com.lin_q.debursement_api.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -13,20 +14,18 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table
-public class ReasonItems {
+@Table(name = "department")
+public class Department implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reasonitem_id")
-    private Integer reasonitemId;
-    @Column(name = "debursement_id")
-    private Integer debursementId;
-    private String designation;
-    private Integer unitprice;
-    private Integer quatity;
-    private Integer totalprice;
+    @Column(name = "department_id")
+    private Integer departmentId;
+    @Column(name = "user_id")
+    private Integer userId;
+    @Column(name = "department_name")
+    private String departmentName;
     @Column(name = "created_on")
-    private Date createdOn;
+    private Date createdOn; 
     @Column(name = "updated_on")
-    private Date updatedOn; 
+    private Date updatedOn;
 }

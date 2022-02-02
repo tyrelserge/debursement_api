@@ -22,9 +22,9 @@ public class BudgetIndex {
     @Column(name = "user_id")
     private Integer userId;
     @Column(name = "budgsector_id")
-    private Integer budgsector_id;
+    private Integer budgsectorId;
     @Column(name = "groupedbubget_id")
-    private Integer groupedbubgetId;
+    private Integer groupedbudgetId;
     @Column(name = "budgindex_name")
     private String budgindexName;
     @Column(name = "budgetindex_description")
