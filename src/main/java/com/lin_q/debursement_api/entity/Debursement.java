@@ -23,7 +23,7 @@ public class Debursement {
     private Integer budgindexId;
     @Column(name = "user_id")
     private Integer userId;
-    private String registration;
+    private String identifier;
     private String reason; 
     @Column(name = "amount_requested")
     private Integer amountRequested;

@@ -18,7 +18,7 @@ public class BudgetarySector {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "budgsector_id")
-    private Integer budgsector_id;
+    private Integer budgsectorId;
     @Column(name = "budgsector_name")
     private String budgsectorName;
     @Column(name = "budgsector_description")

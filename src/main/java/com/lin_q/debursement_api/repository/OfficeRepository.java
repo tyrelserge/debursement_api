@@ -29,4 +29,7 @@ public interface OfficeRepository extends JpaRepository<Office, Integer> {
         +"VALUES (?1, ?2, ?3, ?4, ?5, NULL)", nativeQuery = true)
     public Integer saveOffice(Integer userId, Integer departId, Integer profileId, String name, String createDate);
  
+    @Query(value = "SELECT * FROM office WHERE user_id=? ORDER BY office_id DESC LIMIT 1", nativeQuery = true)
+    public Office fetchUserLastOfficeEntered(Integer userId);
+
 }

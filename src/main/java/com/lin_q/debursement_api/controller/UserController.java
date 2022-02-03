@@ -122,10 +122,10 @@ public class UserController {
     }
 
     @PostMapping(value = "/office/create")
-    public ResponseEntity<ResponseDto<String>> CreateUserOffice(@RequestBody OfficeReq officeReq) {
-        String res = userService.toCreateUserOffice(officeReq);
-        return res !=null ? ResponseEntity.ok(new ResponseDto<String>(Constants.SUCCESS, res)):
-            ResponseEntity.ok(new ResponseDto<String>(Constants.ERROR, null));
+    public ResponseEntity<ResponseDto<Office>> CreateUserOffice(@RequestBody OfficeReq officeReq) {
+        Office res = userService.toCreateUserOffice(officeReq);
+        return res !=null ? ResponseEntity.ok(new ResponseDto<Office>(Constants.SUCCESS, res)):
+            ResponseEntity.ok(new ResponseDto<Office>(Constants.ERROR, null));
     }
 
     

@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String toCreateUserOffice(OfficeReq officeReq) {
+    public Office toCreateUserOffice(OfficeReq officeReq) {
         
         Integer userId = officeReq.getUserId();
         Integer departId = officeReq.getDepartmentId();
@@ -220,8 +220,10 @@ public class UserServiceImpl implements UserService {
         String createDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         Integer res= officeRepository.saveOffice(userId, departId, profileId, name, createDate);
+        if (res!=1)
+            return null;
 
-        return res==1 ? "SAVED" : null;
+        return officeRepository.fetchUserLastOfficeEntered(userId);
     }
 
 

@@ -31,7 +31,7 @@ public interface UserService {
     public Profile toUpdateUserProfile(Integer profileId, ProfileReq profileData);
 
     public Department toCreateUserDepartment(DepartmentReq departReq);
-    public String toCreateUserOffice(OfficeReq officeReq);
+    public Office toCreateUserOffice(OfficeReq officeReq);
     
     public User getUserData(Integer userId);
 
