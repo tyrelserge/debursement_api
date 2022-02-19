@@ -9,11 +9,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "budgetary_sector")
 public class BudgetarySector {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "budgsector_id")
@@ -22,23 +23,11 @@ public class BudgetarySector {
     private String budgsectorName;
     @Column(name = "budgsector_description")
     private String budgsectorDescription;
-    public void setBudgsectorId(Integer budgsectorId) { this.budgsectorId = budgsectorId; } 
+    @Column(name = "budgsector_img") 
+    private String budgsectorImg;
     @Column(name = "created_on") 
     private Date createdOn; 
     @Column(name = "updated_on") 
     private Date updatedOn; 
     private String status; 
-    
-    public void setBudgsectorName(String budgsectorName) { this.budgsectorName = budgsectorName; } 
-    public void setBudgsectorDescription(String budgsectorDescription) { this.budgsectorDescription = budgsectorDescription; } 
-    public void setCreatedOn(Date createdOn) { this.createdOn = createdOn; } 
-    public void setUpdatedOn(Date updatedOn) { this.updatedOn = updatedOn; } 
-    public void setStatus(String status) { this.status = status; } 
-
-    public Integer getBudgsectorId() { return this.budgsectorId; } 
-    public String getBudgsectorName() { return this.budgsectorName; } 
-    public String getBudgsectorDescription() {return this.budgsectorDescription;} 
-    public Date getCreatedOn() { return this.createdOn; }
-    public Date getUpdatedOn() { return this.updatedOn; } 
-    public String getStatus() { return this.status; }
 }

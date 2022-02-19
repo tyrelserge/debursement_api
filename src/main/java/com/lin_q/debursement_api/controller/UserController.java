@@ -1,5 +1,6 @@
 package com.lin_q.debursement_api.controller;
 
+import com.lin_q.debursement_api.Constants;
 import com.lin_q.debursement_api.entity.Department;
 import com.lin_q.debursement_api.entity.GeneralSetting;
 import com.lin_q.debursement_api.entity.Office;
@@ -18,6 +19,7 @@ import com.lin_q.debursement_api.model.RoleReq;
 import com.lin_q.debursement_api.model.UserReq;
 import com.lin_q.debursement_api.service.UserService;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -121,8 +123,11 @@ public class UserController
   @PostMapping({"/create"})
   public ResponseEntity<ResponseDto<Object>> CreateUser(@RequestBody UserReq userData) {
     Object res = this.userService.toCreateUser(userData);
-    return (res != null) ? ResponseEntity.ok(new ResponseDto<Object>("SUCCESS", res)) : 
-      ResponseEntity.ok(new ResponseDto<Object>("ERROR", null));
+    return (res != null) ? 
+      !res.equals("ALREADY_EXISTS") ? 
+      ResponseEntity.ok(new ResponseDto<Object>(Constants.SUCCESS, res)) : 
+      ResponseEntity.ok(new ResponseDto<Object>(Constants.EXISTS, null)) :
+      ResponseEntity.ok(new ResponseDto<Object>(Constants.ERROR, null));
   }
   
   @PostMapping({"/login"})

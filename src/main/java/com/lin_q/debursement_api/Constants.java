@@ -7,6 +7,8 @@ public interface Constants {
 
   public static final String FAILED = "FAILED";
 
+  public static final String EXISTS = "ALREADY_EXISTS";
+  
   public static final String NOTFOUND = "NOT_FOUND";
 
   public static final String DENIED = "ACCESS_DENIED";

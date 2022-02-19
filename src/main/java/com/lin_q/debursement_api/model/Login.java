@@ -1,17 +1,9 @@
 package com.lin_q.debursement_api.model;
 
+import lombok.Data;
+
+@Data
 public class Login { 
-    private String email;
-
+    private String username;
     private String password;
-
-
-    public void setEmail(String email) { this.email = email; } 
-    public void setPassword(String password) { this.password = password; } 
-    
-    public String getEmail() { 
-        return this.email; } 
-    public String getPassword() {
-
-        return this.password;
-} }
+}

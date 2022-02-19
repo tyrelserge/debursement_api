@@ -9,7 +9,6 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "action_request")
-
 public class ActionRequest {
 
     @Id

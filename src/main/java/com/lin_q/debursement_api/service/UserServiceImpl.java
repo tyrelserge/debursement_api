@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.lin_q.debursement_api.Constants;
 import com.lin_q.debursement_api.entity.ActionRequest;
 import com.lin_q.debursement_api.entity.Department;
 import com.lin_q.debursement_api.entity.GeneralSetting;
@@ -101,7 +102,7 @@ public class UserServiceImpl implements UserService {
   public Object toCreateUser(UserReq userData) throws JsonParseException {
     Optional<User> optional = this.userRepository.findByEmail(userData.getEmail().trim());
     if (optional.isPresent()) {
-      return "Cette adresse e-mail est déjà enregistré.";
+      return Constants.EXISTS;
     }
 
     
@@ -150,19 +151,20 @@ public class UserServiceImpl implements UserService {
 
   
   public User toLogin(Login loginData) {
-    Optional<User> optional = this.userRepository.findByEmail(loginData.getEmail().trim());
-    if (!optional.isPresent()) {
+
+    if(loginData.getUsername()==null || loginData.getPassword()==null)
       return null;
-    }
+
+    Optional<User> optional = this.userRepository.findByEmail(loginData.getUsername().trim());
+    if (!optional.isPresent()) return null;
     User user = optional.get();
     
     String loginPwd = loginData.getPassword();
     String currentPwd = this.userPasswordRepository.fetchUserCurrentPwd(user.getUserId());
     
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    if (!encoder.matches(loginPwd, currentPwd)) {
-      return null;
-    }
+    if (!encoder.matches(loginPwd, currentPwd)) return null;
+    
     return user;
   }
 

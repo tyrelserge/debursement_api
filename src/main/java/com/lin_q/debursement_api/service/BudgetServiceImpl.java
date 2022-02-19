@@ -49,6 +49,7 @@ public class BudgetServiceImpl implements BudgetService {
     BudgetarySector sector = new BudgetarySector();
     sector.setBudgsectorName(sectorData.getBudgsectorName());
     sector.setBudgsectorDescription(sectorData.getBudgsectorDescription());
+    sector.setBudgsectorImg(sectorData.getBudgsectorImg());
     sector.setCreatedOn(new Date());
     sector.setStatus(sectorData.getStatus());
     return (BudgetarySector)this.budgetarySectorRepository.save(sector);
@@ -68,6 +69,7 @@ public class BudgetServiceImpl implements BudgetService {
     sector.setBudgsectorId(oldSector.getBudgsectorId());
     sector.setBudgsectorName(sectorData.getBudgsectorName());
     sector.setBudgsectorDescription(sectorData.getBudgsectorDescription());
+    sector.setBudgsectorImg(sectorData.getBudgsectorImg());
     sector.setCreatedOn(oldSector.getCreatedOn());
     sector.setUpdatedOn(new Date());
     sector.setStatus(sectorData.getStatus());
