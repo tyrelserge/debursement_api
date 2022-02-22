@@ -10,6 +10,8 @@ import com.lin_q.debursement_api.Constants;
 import com.lin_q.debursement_api.entity.ActionRequest;
 import com.lin_q.debursement_api.entity.Department;
 import com.lin_q.debursement_api.entity.GeneralSetting;
+import com.lin_q.debursement_api.entity.Notification;
+import com.lin_q.debursement_api.entity.Notifuser;
 import com.lin_q.debursement_api.entity.Office;
 import com.lin_q.debursement_api.entity.Profile;
 import com.lin_q.debursement_api.entity.Role;
@@ -19,6 +21,8 @@ import com.lin_q.debursement_api.exception.ResourceNotFoundException;
 import com.lin_q.debursement_api.model.DepartmentReq;
 import com.lin_q.debursement_api.model.GSettingsReq;
 import com.lin_q.debursement_api.model.Login;
+import com.lin_q.debursement_api.model.NotificationReq;
+import com.lin_q.debursement_api.model.NotifyUserReq;
 import com.lin_q.debursement_api.model.OfficeReq;
 import com.lin_q.debursement_api.model.OfficeSet;
 import com.lin_q.debursement_api.model.ProfileReq;
@@ -27,6 +31,8 @@ import com.lin_q.debursement_api.model.UserReq;
 import com.lin_q.debursement_api.repository.ActionRequestRepository;
 import com.lin_q.debursement_api.repository.DepartmentRepository;
 import com.lin_q.debursement_api.repository.GeneralSettingRepository;
+import com.lin_q.debursement_api.repository.NotificationRepository;
+import com.lin_q.debursement_api.repository.NotifuserRepository;
 import com.lin_q.debursement_api.repository.OfficeRepository;
 import com.lin_q.debursement_api.repository.ProfileRepository;
 import com.lin_q.debursement_api.repository.RoleRepository;
@@ -37,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -57,6 +64,12 @@ public class UserServiceImpl implements UserService {
   private DepartmentRepository departmentRepository;
   @Autowired
   private OfficeRepository officeRepository;
+
+  @Autowired
+  private NotificationRepository notificationRepository;
+  
+  @Autowired
+  private NotifuserRepository notifuserRepository;
   
   public void saveActionRequest(String remoteAddr, String action, String requestStatus) {
     ActionRequest actionRequest = new ActionRequest(null, remoteAddr, action, (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(new Date()), requestStatus);
@@ -89,6 +102,11 @@ public class UserServiceImpl implements UserService {
   }
 
 
+  @Override
+  public List<User> getAllUsers() {
+    return userRepository.findAll();
+  }
+
   
   public User getUserData(Integer userId) {
     User user = (User)this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("The user id " + userId + " is not found"));
@@ -100,13 +118,25 @@ public class UserServiceImpl implements UserService {
 
   
   public Object toCreateUser(UserReq userData) throws JsonParseException {
+
     Optional<User> optional = this.userRepository.findByEmail(userData.getEmail().trim());
     if (optional.isPresent()) {
       return Constants.EXISTS;
     }
 
     
-    User user = new User(null, userData.getLastname(), userData.getFirstname(), userData.getCivility().equalsIgnoreCase("M") ? "H" : "F", userData.getCivility(), userData.getEmail(), userData.getMobile(), new Date(), null, "0", null);
+    User user = new User(
+      null, 
+      userData.getLastname(), 
+      userData.getFirstname(), 
+      userData.getCivility().equalsIgnoreCase("M") ? "H" : "F", 
+      StringUtils.capitalize(userData.getCivility().toLowerCase()), 
+      userData.getEmail(), 
+      userData.getMobile(), 
+      new Date(), 
+      null, 
+      null, 
+      null);
 
    
     User savedUser = (User)this.userRepository.save(user);
@@ -295,4 +325,92 @@ public class UserServiceImpl implements UserService {
     
     return "DONE";
   }
+
+
+
+  @Override
+  public List<Notification> getNotificationMessagesList() {
+    return notificationRepository.findAll();
+  }
+
+  @Override
+  public Notification getNotification(Integer notificationId) {
+   return notificationRepository.findById(notificationId).orElseThrow(
+     () -> new ResourceNotFoundException("Notification non trouvé"));
+  }
+
+
+  @Override
+  public Notification saveNotification(NotificationReq noticeDate) {
+    
+    Notification notice = new Notification();
+    
+    notice.setNotificationSubject(noticeDate.getNotificationSubject());
+    notice.setNotificationDetails(noticeDate.getNotificationDetails());
+  
+    return notificationRepository.save(notice);
+  }
+
+  @Override
+  public Notification setUpdateNotification(Integer notificationId, NotificationReq noticeDate) {
+  
+    Optional<Notification> current = notificationRepository.findById(notificationId);
+
+    if (!current.isPresent())
+      return null;
+
+    Notification notice = new Notification();
+
+    notice.setNotificationId(current.get().getNotificationId());
+    notice.setNotificationSubject(noticeDate.getNotificationSubject());
+    notice.setNotificationDetails(noticeDate.getNotificationDetails());
+
+    return notificationRepository.save(notice);
+  }
+
+  @Override
+  public void setDeleteNotification(Integer notificationId) {
+    notificationRepository.deleteById(notificationId);
+  }
+
+  
+
+  @Override
+  public List<Notifuser> getUserNotificationsList(Integer userId) {
+    return notifuserRepository.fetchUserNotificationsList(userId);
+  }
+
+  @Override
+  public Notifuser getUserNotification(Integer notificationId) {
+    return notifuserRepository.findById(notificationId).orElseThrow(
+      () -> new ResourceNotFoundException("Notification non trouvé"));
+  }
+
+
+  @Override
+  public Notifuser sendUserNotification(NotifyUserReq noticeData) {
+
+    Integer res = notifuserRepository.saveUserNotification(
+      noticeData.getUserId(), noticeData.getNotificationId(), noticeData.getNotificationLink());
+
+      if(res!=1)
+        return null;
+
+      return notifuserRepository.fetchLastUserDavingNotification(noticeData.getUserId());
+  }
+
+  
+  @Override
+  public Notifuser setSeenNotification(Integer notificationId) {
+    return notifuserRepository.executeSetSeenNotification(notificationId)!=1 ? null : 
+      notifuserRepository.findById(notificationId).get();
+  }
+
+
+  @Override
+  public Notifuser setOpenedNotification(Integer notificationId) {
+    return notifuserRepository.executeSetOpenedNotification(notificationId)!=1 ? null : 
+      notifuserRepository.findById(notificationId).get();
+  }
+
 }
