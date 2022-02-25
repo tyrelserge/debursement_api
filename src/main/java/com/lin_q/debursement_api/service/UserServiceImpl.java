@@ -88,6 +88,13 @@ public class UserServiceImpl implements UserService {
     List<Profile> profiles = this.profileRepository.findAll();
     return profiles;
   }
+  
+  
+  @Override
+  public Department getDepartment(Integer departmentId) {
+    return departmentRepository.findById(departmentId).orElseThrow(
+      () -> new ResourceNotFoundException("Department is not found"));
+  }
 
   
   public List<Department> getDepartmentsList() {
@@ -144,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
 
     
-    if (userData.getOfficeIds().isPresent()) {
+    if (userData.getOfficeIds().isPresent() && !userData.getOfficeIds().isEmpty()) {
       Integer[] officeIds = userData.getOfficeIds().get();
       OfficeSet userOffices = new OfficeSet(savedUser.getUserId(), officeIds);
       if (setUserOffices(userOffices).equalsIgnoreCase("DONE")) {
@@ -198,7 +205,10 @@ public class UserServiceImpl implements UserService {
     return user;
   }
 
-
+  @Override
+  public List<GeneralSetting> getAllSettings() {
+    return generalSettingRepository.findAll();
+  }
   
   public GeneralSetting toUpdateGeneralSettings(GSettingsReq gSettingsReq) {
     GeneralSetting currentSetting = this.generalSettingRepository.findByStatus("active");
@@ -412,5 +422,15 @@ public class UserServiceImpl implements UserService {
     return notifuserRepository.executeSetOpenedNotification(notificationId)!=1 ? null : 
       notifuserRepository.findById(notificationId).get();
   }
+
+
+  @Override
+  public User setUserStatus(Integer userId, String status) {// bizarre
+    return userRepository.executeSetUserStatus(userId, status)!=1 ? null : 
+      userRepository.findById(userId).get();
+  }
+
+
+
 
 }

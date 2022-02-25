@@ -24,6 +24,7 @@ public interface UserService {
   void saveActionRequest(String paramString1, String paramString2, String paramString3);  
   List<Role> getRoleList();  
   List<Profile> getProfileList();  
+  Department getDepartment(Integer departmentId);
   List<Department> getDepartmentsList();  
   List<Office> getOfficesList();  
   Role toCreateRole(RoleReq paramRoleReq);  
@@ -38,6 +39,7 @@ public interface UserService {
   String addPassword(Integer paramInteger, String paramString);  
   User toLogin(Login paramLogin);
   String setUserOffices(OfficeSet paramOfficeSet);  
+  List<GeneralSetting> getAllSettings();
   GeneralSetting toUpdateGeneralSettings(GSettingsReq paramGSettingsReq);
   List<Notification> getNotificationMessagesList();
   Notification getNotification(Integer notificationId);
@@ -49,4 +51,6 @@ public interface UserService {
   Notifuser sendUserNotification(NotifyUserReq noticeDate);
   public Notifuser setSeenNotification(Integer notificationId);
   Notifuser setOpenedNotification(Integer notificationId);
+  User setUserStatus(Integer userId, String status);
+
 }

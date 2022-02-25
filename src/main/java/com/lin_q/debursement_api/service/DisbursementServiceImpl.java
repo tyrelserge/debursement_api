@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
 import com.lin_q.debursement_api.entity.ValidationAction;
+import com.lin_q.debursement_api.exception.ResourceNotFoundException;
 import com.lin_q.debursement_api.model.DebursementReq;
 import com.lin_q.debursement_api.model.ReasonItemsReq;
 import com.lin_q.debursement_api.model.ValidationReq;
@@ -34,9 +35,9 @@ public class DisbursementServiceImpl implements DisbursementService {
 
   
   public Debursement getUserDisbursementRequest(Integer disbursId) {
-    return this.debursementRepository.findById(disbursId).get();
+    return this.debursementRepository.findById(disbursId).orElseThrow(
+      ()->new ResourceNotFoundException("Disbursement not found"));
   }
-
 
   
   public Debursement toDisbursementRequest(DebursementReq debursementData) {
@@ -162,66 +163,66 @@ public class DisbursementServiceImpl implements DisbursementService {
   }
 
 
+  @Override
+  public List<Debursement> getAllDisbursements() {
+    return this.debursementRepository.findAll();
+  }
+
   
-  public Debursement setDisbursementValidation(Integer disbursId, ValidationReq validateData) {
+  @Override
+  public List<Debursement> getDisbursementWaitingValidation() {
+    return this.debursementRepository.fetchDisbursementWaitingValidation();
+  }
+
+  
+  public ValidationAction setDisbursementValidation(Integer disbursId, ValidationReq validateData) {
+    
     Optional<Debursement> optional = this.debursementRepository.findById(disbursId);
     
-    if (!optional.isPresent()) {
+    if (!optional.isPresent())
       return null;
-    }
-    Debursement currendDebursement = optional.get();
     
-    Debursement debursement = new Debursement();
+    Debursement current = optional.get();    
     
-    debursement.setDebursementId(disbursId);
-    debursement.setBudgindexId(currendDebursement.getBudgindexId());
-    debursement.setUserId(currendDebursement.getUserId());
-    debursement.setIdentifier(currendDebursement.getIdentifier());
-    debursement.setReason(currendDebursement.getReason());
-    debursement.setAmountRequested(currendDebursement.getAmountRequested());
-    debursement.setCreatedOn(currendDebursement.getCreatedOn());
-    debursement.setUpdatedOn(new Date());
-    debursement.setAmountApproved(currendDebursement.getAmountApproved());
-    debursement.setRecipientId(currendDebursement.getRecipientId());
-    debursement.setActivateDebursement(currendDebursement.getActivateDebursement());
-    debursement.setStatus(validateData.getActionValue());
-    debursement.setReasonItems(currendDebursement.getReasonItems());
-    
-    Integer currentStep = currendDebursement.getCurrentStep();
-    
-    if (currentStep == null || currentStep.intValue() < 1) {
-      debursement.setAmountApproved(validateData.getAmountApproved());
-      debursement.setRecipientId(validateData.getRecipientId());
-      debursement.setActivateDebursement(new Date());
+    Integer amountApproved = current.getAmountApproved();
+    Date activatedDate = current.getActivateDebursement();
+
+    Integer currentStep = current.getCurrentStep()==null ? 0 :
+                        Integer.parseInt(current.getCurrentStep().toString());
+
+    if (currentStep.intValue() < 1) {
+      amountApproved = validateData.getAmountApproved();
+      activatedDate = new Date();
       currentStep = Integer.valueOf(1);
     }
     else {
-      
-      debursement.setAmountApproved(currendDebursement.getAmountApproved());
-      debursement.setRecipientId(currendDebursement.getRecipientId());
-      debursement.setActivateDebursement(currendDebursement.getActivateDebursement());
-      currentStep = Integer.valueOf(currentStep.intValue() + 1);
+      currentStep = Integer.valueOf(currentStep + 1);
     } 
 
+    Integer saveResponset = debursementRepository.updateDisbursementToValidation(
+      disbursId,
+      amountApproved,
+      activatedDate,
+      currentStep,
+      validateData.getActionValue()
+    );
     
-    debursement.setCurrentStep(currentStep);
-    Debursement savedDebursement = (Debursement)this.debursementRepository.save(debursement);
-
-
+    if (saveResponset!=1)
+      return null;
+      
+    ValidationAction action = new ValidationAction();
+    action.setDebursementId(disbursId);                              // request id
+    action.setUserId(validateData.getUserId());                      // validator id
+    action.setActionType(currentStep);                               // steps
+    action.setActionValue(validateData.getActionValue());            // approuved | confimed | rejected
+    action.setObservation(validateData.getObservation());
+    action.setValidatedDate(new Date());
     
-    ValidationAction vAction = new ValidationAction();
-    vAction.setUserId(validateData.getUserId());
-    vAction.setDebursementId(disbursId);
-    vAction.setActionType(currentStep);
-    vAction.setActionValue(validateData.getActionValue());
-    vAction.setObservation(validateData.getObservation());
-    vAction.setValidatedDate(new Date());
+    ValidationAction savedValidation = validationActionRepository.save(action);
     
-    ValidationAction savedValidation = (ValidationAction)this.validationActionRepository.save(vAction);
-    List<ValidationAction> validationToArray = new ArrayList<>();
-    validationToArray.add(savedValidation);
-    savedDebursement.setValidations(validationToArray);
-    
-    return savedDebursement;
+    return savedValidation;
   }
+
+  
+
 }

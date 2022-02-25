@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface NotifuserRepository extends JpaRepository<Notifuser, Integer> {
 
-    @Query(value = "SELECT * FROM notifuser WHERE user_id = 2 ORDER BY notifuser_id DESC", nativeQuery = true)
+    @Query(value = "SELECT * FROM notifuser WHERE user_id = ? ORDER BY notifuser_id DESC", nativeQuery = true)
     List<Notifuser> fetchUserNotificationsList(Integer userId);
 
     @Modifying

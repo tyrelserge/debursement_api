@@ -2,6 +2,7 @@ package com.lin_q.debursement_api.controller;
 
 import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
+import com.lin_q.debursement_api.entity.ValidationAction;
 import com.lin_q.debursement_api.model.DebursementReq;
 import com.lin_q.debursement_api.model.ReasonItemsReq;
 import com.lin_q.debursement_api.model.ResponseDto;
@@ -27,7 +28,7 @@ public class DisbursementController
   @Autowired
   private DisbursementService disbursementService;
   
-  @GetMapping({"/user/{userId}"})
+  @GetMapping({"/user/{userId}/requests"})
   public ResponseEntity<ResponseDto<List<Debursement>>> UserDisbursementRequestList(@PathVariable("userId") Integer userId) {
     List<Debursement> res = this.disbursementService.getUserDisbursementRequestList(userId);
     return (res != null && !res.isEmpty()) ? ResponseEntity.ok(new ResponseDto<List<Debursement>>("SUCCESS", res)) : 
@@ -74,11 +75,29 @@ public class DisbursementController
       ResponseEntity.ok(new ResponseDto<ReasonItems>("ERROR", null));
   }
 
-  
-  @PostMapping({"/request/{disbursId}/validation"})
-  public ResponseEntity<ResponseDto<Debursement>> DisbursementValidation(@PathVariable("disbursId") Integer disbursId, @RequestBody ValidationReq validationData) {
-    Debursement res = this.disbursementService.setDisbursementValidation(disbursId, validationData);
-    return (res != null) ? ResponseEntity.ok(new ResponseDto<Debursement>("SUCCESS", res)) : 
-      ResponseEntity.ok(new ResponseDto<Debursement>("ERROR", null));
+
+  @GetMapping({"/requests"})
+  public ResponseEntity<ResponseDto<List<Debursement>>> AllDisbursement() {
+    List<Debursement> res = this.disbursementService.getAllDisbursements();
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<List<Debursement>>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<List<Debursement>>("ERROR", null));
   }
+
+
+  @GetMapping({"/requests/waiting"})
+  public ResponseEntity<ResponseDto<List<Debursement>>> DisbursementWaitingValidation() {
+    List<Debursement> res = this.disbursementService.getDisbursementWaitingValidation();
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<List<Debursement>>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<List<Debursement>>("ERROR", null));
+  }
+
+  
+  @PostMapping({"/validation/request/{disbursId}"})
+  public ResponseEntity<ResponseDto<ValidationAction>> DisbursementValidation(@PathVariable("disbursId") Integer disbursId, @RequestBody ValidationReq validationData) {
+    ValidationAction res = this.disbursementService.setDisbursementValidation(disbursId, validationData);
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<ValidationAction>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<ValidationAction>("ERROR", null));
+  }
+  
+
 }

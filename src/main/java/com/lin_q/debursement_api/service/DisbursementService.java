@@ -2,6 +2,7 @@ package com.lin_q.debursement_api.service;
 
 import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
+import com.lin_q.debursement_api.entity.ValidationAction;
 import com.lin_q.debursement_api.model.DebursementReq;
 import com.lin_q.debursement_api.model.ReasonItemsReq;
 import com.lin_q.debursement_api.model.ValidationReq;
@@ -14,5 +15,7 @@ public interface DisbursementService {
   Debursement toUpdateDisbursementRequest(Integer paramInteger, DebursementReq paramDebursementReq);  
   ReasonItems toSaveReasonItems(Integer paramInteger, ReasonItemsReq paramReasonItemsReq);  
   ReasonItems toUpdateReasonItems(Integer paramInteger, ReasonItemsReq paramReasonItemsReq);  
-  Debursement setDisbursementValidation(Integer paramInteger, ValidationReq paramValidationReq);
+  List<Debursement> getAllDisbursements();
+  List<Debursement> getDisbursementWaitingValidation();
+  ValidationAction setDisbursementValidation(Integer disbursId, ValidationReq validationReq);
 }

@@ -22,6 +22,7 @@ import com.lin_q.debursement_api.model.PwdReq;
 import com.lin_q.debursement_api.model.ResponseDto;
 import com.lin_q.debursement_api.model.RoleReq;
 import com.lin_q.debursement_api.model.UserReq;
+import com.lin_q.debursement_api.model.uStatus;
 import com.lin_q.debursement_api.service.UserService;
 import java.util.List;
 
@@ -88,6 +89,14 @@ public class UserController
     return (res != null && !res.isEmpty()) ? ResponseEntity.ok(new ResponseDto<List<Department>>("SUCCESS", res)) : 
       ResponseEntity.ok(new ResponseDto<List<Department>>("ERROR", null));
   }
+
+  @GetMapping({"/department/{departmentId}"})
+  public ResponseEntity<ResponseDto<Department>> Departments(@PathVariable("departmentId") Integer departmentId) {
+    Department res = this.userService.getDepartment(departmentId);
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<Department>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<Department>("ERROR", null));
+  }
+  
   
   @GetMapping({"/offices"})
   public ResponseEntity<ResponseDto<List<Office>>> Offices() {
@@ -104,19 +113,7 @@ public class UserController
       ResponseEntity.ok(new ResponseDto<List<User>>("ERROR", null));
   }
 
-  // @GetMapping({"/admins"})
-  // public ResponseEntity<ResponseDto<List<User>>> AllAdminUsers() {
-  //   List<User> res = this.userService.getAllAdminUsers();
-  //   return (res != null) ? ResponseEntity.ok(new ResponseDto<List<User>>("SUCCESS", res)) : 
-  //     ResponseEntity.ok(new ResponseDto<List<User>>("ERROR", null));
-  // }
-
-  // @GetMapping({"/moderators"})
-  // public ResponseEntity<ResponseDto<List<User>>> AllModeratorUsers() {
-  //   List<User> res = this.userService.getAllModeratorUsers();
-  //   return (res != null) ? ResponseEntity.ok(new ResponseDto<List<User>>("SUCCESS", res)) : 
-  //     ResponseEntity.ok(new ResponseDto<List<User>>("ERROR", null));
-  // }
+  
 
   @GetMapping({"/{userid}"})
   public ResponseEntity<ResponseDto<User>> UserData(@PathVariable("userid") Integer userId) {
@@ -202,6 +199,13 @@ public class UserController
     return (res != null) ? ResponseEntity.ok(new ResponseDto<GeneralSetting>("SUCCESS", res)) : 
       ResponseEntity.ok(new ResponseDto<GeneralSetting>("ERROR", null));
   }
+
+  @GetMapping({"/settings"})
+  public ResponseEntity<ResponseDto<List<GeneralSetting>>> AllSettings() {
+    List<GeneralSetting> res = this.userService.getAllSettings();
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<List<GeneralSetting>>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<List<GeneralSetting>>("ERROR", null));
+  }
   
   @PostMapping({"/office-set"})
   public ResponseEntity<ResponseDto<String>> UserOffices(@RequestBody OfficeSet offices) {
@@ -246,21 +250,21 @@ public class UserController
       return ResponseEntity.ok(new ResponseDto<String>(Constants.SUCCESS, "DONE"));
   }
   
-  @GetMapping(value="/notifications/{userId}")
+  @GetMapping(value="/notifies/{userId}")
   public ResponseEntity<ResponseDto<List<Notifuser>>> UserNotificationsList(@PathVariable("userId") Integer userId) {    
     List<Notifuser> res = userService.getUserNotificationsList(userId);      
       return (res != null) ? ResponseEntity.ok(new ResponseDto<List<Notifuser>>(Constants.SUCCESS, res)) : 
       ResponseEntity.ok(new ResponseDto<List<Notifuser>>(Constants.ERROR, null));
   }  
 
-  @GetMapping(value="/notification/{notificationId}")
+  @GetMapping(value="/notify/{notificationId}")
   public ResponseEntity<ResponseDto<Notifuser>> getUserNotification(@PathVariable("notificationId") Integer notificationId) {    
     Notifuser res = userService.getUserNotification(notificationId);      
       return (res != null) ? ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.SUCCESS, res)) : 
       ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.ERROR, null));
   } 
 
-  @PostMapping(value="/notification")
+  @PostMapping(value="/notify")
   public ResponseEntity<ResponseDto<Notifuser>> SendUserNotification(
     @RequestBody NotifyUserReq noticeDate) {      
     Notifuser res = userService.sendUserNotification(noticeDate);      
@@ -268,7 +272,7 @@ public class UserController
     ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.ERROR, null));
   }
 
-  @GetMapping(value="/notification/opened/{notificationId}")
+  @GetMapping(value="/notify/opened/{notificationId}")
   public ResponseEntity<ResponseDto<Notifuser>> SetOpenedUserNotification(
     @PathVariable("notificationId") Integer notificationId) {      
       Notifuser res = userService.setOpenedNotification(notificationId);      
@@ -276,7 +280,7 @@ public class UserController
     ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.ERROR, null));
   }
 
-  @GetMapping(value="/notification/seen/{notificationId}")
+  @GetMapping(value="/notify/seen/{notificationId}")
   public ResponseEntity<ResponseDto<Notifuser>> SetSeenUserNotification(
     @PathVariable("notificationId") Integer notificationId) {      
       Notifuser res = userService.setSeenNotification(notificationId);      
@@ -284,4 +288,12 @@ public class UserController
     ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.ERROR, null));
   }
   
+  @PutMapping({"/{userId}/set-status"})
+  public ResponseEntity<ResponseDto<User>> ActivateUser(
+    @PathVariable("userId") Integer userId, @RequestBody uStatus status) {
+    User res = userService.setUserStatus(userId, status.getStatus());
+    return res!=null ? ResponseEntity.ok(new ResponseDto<User>(Constants.SUCCESS, res)): 
+        ResponseEntity.ok(new ResponseDto<User>(Constants.ERROR, null));
+  }
+
 }
