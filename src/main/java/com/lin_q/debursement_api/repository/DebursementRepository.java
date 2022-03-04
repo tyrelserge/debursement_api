@@ -29,5 +29,8 @@ public interface DebursementRepository extends JpaRepository<Debursement, Intege
     @Param("activated") Date activatedDate, 
     @Param("step") Integer currentStep,
     @Param("status") String status);
+
+  @Query(value = "SELECT identifier FROM debursement WHERE month(created_on)=? ORDER BY debursement_id DESC LIMIT 1", nativeQuery = true)
+  String fetchCurrentMonthLastDisbursement(String currentMonth);
   
 }

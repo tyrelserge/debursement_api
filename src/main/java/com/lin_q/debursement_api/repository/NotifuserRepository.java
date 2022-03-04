@@ -25,8 +25,8 @@ public interface NotifuserRepository extends JpaRepository<Notifuser, Integer> {
     Notifuser fetchLastUserDavingNotification(Integer userId);
 
     @Modifying
-    @Query(value = "UPDATE notifuser SET notification_seen=NOW() WHERE notifuser_id=?1", nativeQuery = true)
-    int executeSetSeenNotification(Integer notificationId);
+    @Query(value = "UPDATE notifuser SET notification_seen=NOW() WHERE user_id=?1 AND notification_seen IS NULL", nativeQuery = true)
+    Integer executeSetSeenNotification(Integer userId);
 
     @Modifying
     @Query(value = "UPDATE notifuser SET notification_opened=NOW() WHERE notifuser_id=?1", nativeQuery = true)

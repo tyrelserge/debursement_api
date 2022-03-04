@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
     return userRepository.findAll();
   }
 
-  
+
   public User getUserData(Integer userId) {
     User user = (User)this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("The user id " + userId + " is not found"));
 
@@ -142,10 +142,9 @@ public class UserServiceImpl implements UserService {
       userData.getMobile(), 
       new Date(), 
       null, 
-      null, 
+      userData.getStatus(), 
       null);
 
-   
     User savedUser = (User)this.userRepository.save(user);
     addPassword(savedUser.getUserId(), userData.getPassword());
 
@@ -411,9 +410,9 @@ public class UserServiceImpl implements UserService {
 
   
   @Override
-  public Notifuser setSeenNotification(Integer notificationId) {
-    return notifuserRepository.executeSetSeenNotification(notificationId)!=1 ? null : 
-      notifuserRepository.findById(notificationId).get();
+  public String setSeenNotification(Integer userId) {
+    Integer res = notifuserRepository.executeSetSeenNotification(userId);
+    return res!=1 ? null : "DONE";
   }
 
 
@@ -425,12 +424,20 @@ public class UserServiceImpl implements UserService {
 
 
   @Override
-  public User setUserStatus(Integer userId, String status) {// bizarre
+  public User setUserStatus(Integer userId, String status) {
     return userRepository.executeSetUserStatus(userId, status)!=1 ? null : 
       userRepository.findById(userId).get();
   }
 
 
+  public List<User> getSearchUserByname(String byname) {
+    String lastname = byname;
+    String firstname = byname;
+    List<User> users = userRepository.fetchUserbyFilds(lastname, firstname);
+
+    return users;
+  }
+  
 
 
 }

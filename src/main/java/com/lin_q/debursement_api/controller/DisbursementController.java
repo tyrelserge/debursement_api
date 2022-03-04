@@ -4,6 +4,7 @@ import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
 import com.lin_q.debursement_api.entity.ValidationAction;
 import com.lin_q.debursement_api.model.DebursementReq;
+import com.lin_q.debursement_api.model.ReasonAssignReq;
 import com.lin_q.debursement_api.model.ReasonItemsReq;
 import com.lin_q.debursement_api.model.ResponseDto;
 import com.lin_q.debursement_api.model.ValidationReq;
@@ -60,16 +61,24 @@ public class DisbursementController
   }
 
   
-  @PostMapping({"/request/{disbursId}/reason"})
-  public ResponseEntity<ResponseDto<ReasonItems>> SaveReasonItems(@PathVariable("disbursId") Integer disbursId, @RequestBody ReasonItemsReq ReasonData) {
-    ReasonItems res = this.disbursementService.toSaveReasonItems(disbursId, ReasonData);
+  @PostMapping({"/request/reason"})
+  public ResponseEntity<ResponseDto<ReasonItems>> SaveReasonItems(@RequestBody ReasonItemsReq ReasonData) {
+    ReasonItems res = this.disbursementService.toSaveReasonItems(ReasonData);
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<ReasonItems>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<ReasonItems>("ERROR", null));
+  }
+  
+  
+  @PutMapping({"/reason/{reasonId}/assign"})
+  public ResponseEntity<ResponseDto<ReasonItems>> AssignReasonItems(@PathVariable("reasonId") Integer reasonId, @RequestBody ReasonAssignReq ReasonData) {
+    ReasonItems res = this.disbursementService.toAssignReasonItems(reasonId, ReasonData.getDebursementId());
     return (res != null) ? ResponseEntity.ok(new ResponseDto<ReasonItems>("SUCCESS", res)) : 
       ResponseEntity.ok(new ResponseDto<ReasonItems>("ERROR", null));
   }
 
   
   @PutMapping({"/reason/{reasonId}"})
-  public ResponseEntity<ResponseDto<ReasonItems>> UpdateReasonItemsTest(@PathVariable("reasonId") Integer reasonId, @RequestBody ReasonItemsReq ReasonData) {
+  public ResponseEntity<ResponseDto<ReasonItems>> UpdateReasonItems(@PathVariable("reasonId") Integer reasonId, @RequestBody ReasonItemsReq ReasonData) {
     ReasonItems res = this.disbursementService.toUpdateReasonItems(reasonId, ReasonData);
     return (res != null) ? ResponseEntity.ok(new ResponseDto<ReasonItems>("SUCCESS", res)) : 
       ResponseEntity.ok(new ResponseDto<ReasonItems>("ERROR", null));
@@ -97,6 +106,13 @@ public class DisbursementController
     ValidationAction res = this.disbursementService.setDisbursementValidation(disbursId, validationData);
     return (res != null) ? ResponseEntity.ok(new ResponseDto<ValidationAction>("SUCCESS", res)) : 
       ResponseEntity.ok(new ResponseDto<ValidationAction>("ERROR", null));
+  }
+
+  @GetMapping({"/registration/nextnumber"})
+  public ResponseEntity<ResponseDto<String>> GenerateRegistrationNumber() {
+    String res = this.disbursementService.getGeneratedRegistrationNumber();
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<String>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<String>("ERROR", null));
   }
   
 

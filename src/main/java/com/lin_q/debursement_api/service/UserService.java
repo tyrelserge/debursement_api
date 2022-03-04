@@ -49,8 +49,9 @@ public interface UserService {
   List<Notifuser> getUserNotificationsList(Integer userId);
   Notifuser getUserNotification(Integer notificationId);
   Notifuser sendUserNotification(NotifyUserReq noticeDate);
-  public Notifuser setSeenNotification(Integer notificationId);
+  String setSeenNotification(Integer userId);
   Notifuser setOpenedNotification(Integer notificationId);
   User setUserStatus(Integer userId, String status);
+  List<User> getSearchUserByname(String byname);
 
 }

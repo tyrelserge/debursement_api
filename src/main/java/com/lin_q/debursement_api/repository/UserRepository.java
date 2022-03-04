@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 @Transactional
 public interface UserRepository extends JpaRepository<User, Integer> {
@@ -17,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
   @Modifying
   @Query(value = "UPDATE user SET status=:status WHERE user_id=:userid", nativeQuery = true)
   Integer executeSetUserStatus(@Param("userid") Integer userId, @Param("status") String status);
+
+  @Query(value = "SELECT * FROM user WHERE lastname LIKE :lastname% OR firstname LIKE %:firstname%", nativeQuery = true)
+  List<User> fetchUserbyFilds(@Param("lastname") String lastname, @Param("firstname") String firstname);
 }

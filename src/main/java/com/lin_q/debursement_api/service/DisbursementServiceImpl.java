@@ -1,5 +1,6 @@
 package com.lin_q.debursement_api.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -54,12 +55,13 @@ public class DisbursementServiceImpl implements DisbursementService {
     
     Debursement savedDebursement = (Debursement)this.debursementRepository.save(debursement);
     Integer debursementId = savedDebursement.getDebursementId();
-    List<ReasonItemsReq> reasonDataList = debursementData.getReasonItems();
+
+    Integer[] reasonIds = debursementData.getReasonItemsIds();
     
-    if (reasonDataList != null && !reasonDataList.isEmpty()) {
+    if (reasonIds!=null && 0 < reasonIds.length) {
       List<ReasonItems> reasonItemsList = new ArrayList<>();
-      for (ReasonItemsReq reasonData : reasonDataList) {
-        ReasonItems reasonItems = toSaveReasonItems(debursementId, reasonData);
+      for (Integer reasonId : reasonIds) {
+        ReasonItems reasonItems = toAssignReasonItems(reasonId, debursementId);
         reasonItemsList.add(reasonItems);
       } 
       savedDebursement.setReasonItems(reasonItemsList);
@@ -67,15 +69,14 @@ public class DisbursementServiceImpl implements DisbursementService {
     
     return savedDebursement;
   }
-
-
   
   public Debursement toUpdateDisbursementRequest(Integer disbursId, DebursementReq debursementData) {
-    Optional<Debursement> currendDebursement = this.debursementRepository.findById(disbursId);
+    Optional<Debursement> optional = this.debursementRepository.findById(disbursId);
     
-    if (!currendDebursement.isPresent()) {
+    if (!optional.isPresent()) 
       return null;
-    }
+    
+    Debursement currendDebursement = optional.get();
     Debursement debursement = new Debursement();
     
     debursement.setDebursementId(disbursId);
@@ -85,25 +86,28 @@ public class DisbursementServiceImpl implements DisbursementService {
     debursement.setReason(debursementData.getReason());
     debursement.setAmountRequested(debursementData.getAmountRequested());
     debursement.setRecipientId(debursementData.getRecipientId());
-    debursement.setCreatedOn(((Debursement)currendDebursement.get()).getCreatedOn());
+    debursement.setCreatedOn(currendDebursement.getCreatedOn());
     debursement.setUpdatedOn(new Date());
-    debursement.setAmountApproved(((Debursement)currendDebursement.get()).getAmountApproved());
-    debursement.setActivateDebursement(((Debursement)currendDebursement.get()).getActivateDebursement());
-    debursement.setCurrentStep(((Debursement)currendDebursement.get()).getCurrentStep());
-    debursement.setReasonItems(((Debursement)currendDebursement.get()).getReasonItems());
+    debursement.setAmountApproved(currendDebursement.getAmountApproved());
+    debursement.setActivateDebursement(currendDebursement.getActivateDebursement());
+    debursement.setCurrentStep(currendDebursement.getCurrentStep());
+    debursement.setReasonItems(currendDebursement.getReasonItems());
     debursement.setStatus(debursementData.getStatus());
     
     Debursement savedDebursement = (Debursement)this.debursementRepository.save(debursement);
     Integer debursementId = savedDebursement.getDebursementId();
-    List<ReasonItemsReq> reasonDataList = debursementData.getReasonItems();
+
+    Integer[] reasonIds = debursementData.getReasonItemsIds();
+
+    List<ReasonItems> reasonItemsList = new ArrayList<>();
     
-    if (reasonDataList != null && !reasonDataList.isEmpty()) {
-      List<ReasonItems> reasonItemsList = new ArrayList<>();
-      for (ReasonItems reasonItems : ((Debursement)currendDebursement.get()).getReasonItems()) {
-        reasonItemsList.add(reasonItems);
-      }
-      for (ReasonItemsReq reasonData : reasonDataList) {
-        ReasonItems reasonItems = toSaveReasonItems(debursementId, reasonData);
+    for (ReasonItems reasonItems : currendDebursement.getReasonItems()) {
+      reasonItemsList.add(reasonItems);
+    }
+
+    if (reasonIds != null && 0 < reasonIds.length) {
+      for (Integer reasonId : reasonIds) {
+        ReasonItems reasonItems = toAssignReasonItems(reasonId, debursementId);
         reasonItemsList.add(reasonItems);
       } 
       savedDebursement.setReasonItems(reasonItemsList);
@@ -112,20 +116,21 @@ public class DisbursementServiceImpl implements DisbursementService {
     return savedDebursement;
   }
 
-
   
-  public ReasonItems toSaveReasonItems(Integer debursementId, ReasonItemsReq reasonData) {
-    Optional<Debursement> debursement = this.debursementRepository.findById(debursementId);
-    
-    if (!debursement.isPresent()) {
-      return null;
+  public ReasonItems toSaveReasonItems(ReasonItemsReq reasonData) {
+
+    if(reasonData.getDebursementId()!=null) {
+      Optional<Debursement> debursement = this.debursementRepository.findById(reasonData.getDebursementId());
+      if (!debursement.isPresent()) 
+        return null;
     }
+
     ReasonItems reasonItems = new ReasonItems();
     
     int pu = reasonData.getUnitprice().intValue();
     int qt = reasonData.getQuatity().intValue();
     
-    reasonItems.setDebursementId(debursementId);
+    reasonItems.setDebursementId(reasonData.getDebursementId());
     reasonItems.setDesignation(reasonData.getDesignation());
     reasonItems.setQuatity(reasonData.getQuatity());
     reasonItems.setUnitprice(reasonData.getUnitprice());
@@ -136,6 +141,32 @@ public class DisbursementServiceImpl implements DisbursementService {
     return (ReasonItems)this.reasonItemsRepository.save(reasonItems);
   }
 
+
+  @Override
+  public ReasonItems toAssignReasonItems(Integer reasonId, Integer debursementId) {
+    Optional<ReasonItems> optional = this.reasonItemsRepository.findById(reasonId);
+    
+    if (!optional.isPresent()) 
+      return null;
+    
+    ReasonItems currentReason = optional.get();
+    if(currentReason.getDebursementId()!=null)
+      return null;
+
+    ReasonItems reasonItems = new ReasonItems();
+    
+    reasonItems.setReasonitemId(reasonId);
+    reasonItems.setDebursementId(debursementId);
+    reasonItems.setDesignation(currentReason.getDesignation());
+    reasonItems.setQuatity(currentReason.getQuatity());
+    reasonItems.setUnitprice(currentReason.getUnitprice());
+    reasonItems.setTotalprice(currentReason.getTotalprice());
+    reasonItems.setCreatedOn(currentReason.getCreatedOn());
+    reasonItems.setUpdatedOn(new Date());
+    reasonItems.setStatus(currentReason.getStatus());
+    
+    return (ReasonItems)this.reasonItemsRepository.save(reasonItems);
+  }
 
   
   public ReasonItems toUpdateReasonItems(Integer reasonId, ReasonItemsReq reasonData) {
@@ -221,6 +252,20 @@ public class DisbursementServiceImpl implements DisbursementService {
     ValidationAction savedValidation = validationActionRepository.save(action);
     
     return savedValidation;
+  }
+
+
+  @Override
+  public String getGeneratedRegistrationNumber() {
+    String currentMonth = new SimpleDateFormat("MM").format(new Date());
+    String deb = debursementRepository.fetchCurrentMonthLastDisbursement(currentMonth);
+    Integer nextNumber = 0;
+    try {
+      nextNumber = Integer.parseInt(deb.toString()) + 1;
+    } catch (Exception e) {
+      nextNumber = 1;
+    }    
+    return String.format("%03d", nextNumber);
   }
 
   

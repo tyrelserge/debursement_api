@@ -280,12 +280,12 @@ public class UserController
     ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.ERROR, null));
   }
 
-  @GetMapping(value="/notify/seen/{notificationId}")
-  public ResponseEntity<ResponseDto<Notifuser>> SetSeenUserNotification(
-    @PathVariable("notificationId") Integer notificationId) {      
-      Notifuser res = userService.setSeenNotification(notificationId);      
-    return (res != null) ? ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.SUCCESS, res)) : 
-    ResponseEntity.ok(new ResponseDto<Notifuser>(Constants.ERROR, null));
+  @GetMapping(value="/notify/seen/{userId}")
+  public ResponseEntity<ResponseDto<String>> SetSeenUserNotification(
+    @PathVariable("userId") Integer userId) {      
+      String res = userService.setSeenNotification(userId);      
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<String>(Constants.SUCCESS, res)) : 
+    ResponseEntity.ok(new ResponseDto<String>(Constants.ERROR, null));
   }
   
   @PutMapping({"/{userId}/set-status"})
@@ -295,5 +295,14 @@ public class UserController
     return res!=null ? ResponseEntity.ok(new ResponseDto<User>(Constants.SUCCESS, res)): 
         ResponseEntity.ok(new ResponseDto<User>(Constants.ERROR, null));
   }
+
+    
+  @GetMapping({"/search/{byname}"})
+  public ResponseEntity<ResponseDto<List<User>>> SearchUserByame(@PathVariable("byname") String byname) {
+    List<User> res = this.userService.getSearchUserByname(byname);
+    return (res != null) ? ResponseEntity.ok(new ResponseDto<List<User>>("SUCCESS", res)) : 
+      ResponseEntity.ok(new ResponseDto<List<User>>("ERROR", null));
+  }
+
 
 }
