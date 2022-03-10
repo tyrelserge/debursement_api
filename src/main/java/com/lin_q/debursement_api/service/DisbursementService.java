@@ -10,10 +10,10 @@ import com.lin_q.debursement_api.model.ReasonItemsReq;
 import com.lin_q.debursement_api.model.ValidationReq;
 
 public interface DisbursementService {
-  List<Debursement> getUserDisbursementRequestList(Integer paramInteger);  
-  Debursement getUserDisbursementRequest(Integer paramInteger);  
-  Debursement toDisbursementRequest(DebursementReq paramDebursementReq);  
-  Debursement toUpdateDisbursementRequest(Integer paramInteger, DebursementReq paramDebursementReq);  
+  List<Debursement> getUserDisbursementRequestList(Integer userId);  
+  Debursement getUserDisbursementRequest(Integer disbursId);  
+  Debursement toDisbursementRequest(DebursementReq debursementData);  
+  Debursement toUpdateDisbursementRequest(Integer disbursId, DebursementReq debursementData);  
   ReasonItems toSaveReasonItems(ReasonItemsReq ReasonData);  
   ReasonItems toAssignReasonItems(Integer reasonId, Integer debursementId);
   ReasonItems toUpdateReasonItems(Integer reasonId, ReasonItemsReq ReasonData);  

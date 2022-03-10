@@ -53,7 +53,8 @@ public class Debursement {
     @Column(name = "updated_on")    
     private Date updatedOn; 
     private String status;      // 1 submitted | 2 approuved | confimed | (rejected | treated)
-    
+    private String payment;     // Chèque | Espèce | Mobile Monney 
+
     @OneToMany(targetEntity = ValidationAction.class, cascade = {CascadeType.ALL}) 
     @JoinColumn(name = "debursement_id", referencedColumnName = "debursement_id")   
     private List<ValidationAction> validations; 

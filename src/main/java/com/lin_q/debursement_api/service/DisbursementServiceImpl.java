@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.lin_q.debursement_api.entity.BudgetIndex;
+import com.lin_q.debursement_api.entity.BudgetarySector;
 import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
 import com.lin_q.debursement_api.entity.ValidationAction;
@@ -31,13 +33,19 @@ public class DisbursementServiceImpl implements DisbursementService {
   private ValidationActionRepository validationActionRepository;
   
   public List<Debursement> getUserDisbursementRequestList(Integer userId) {
-    return this.debursementRepository.fetchUserDisbursementRequestList(userId);
+    List<Debursement> disburs = this.debursementRepository.fetchUserDisbursementRequestList(userId);
+    for(Debursement disb: disburs) {
+      disb.setIdentifier(formatRefID(disb));
+    }
+    return disburs;
   }
 
   
-  public Debursement getUserDisbursementRequest(Integer disbursId) {
-    return this.debursementRepository.findById(disbursId).orElseThrow(
+  public Debursement getUserDisbursementRequest(Integer disbursId) {    
+    Debursement disburs = this.debursementRepository.findById(disbursId).orElseThrow(
       ()->new ResourceNotFoundException("Disbursement not found"));
+      disburs.setIdentifier(formatRefID(disburs));
+      return disburs;
   }
 
   
@@ -65,8 +73,8 @@ public class DisbursementServiceImpl implements DisbursementService {
         reasonItemsList.add(reasonItems);
       } 
       savedDebursement.setReasonItems(reasonItemsList);
-    } 
-    
+    }  
+    savedDebursement.setIdentifier(formatRefID(savedDebursement));
     return savedDebursement;
   }
   
@@ -112,7 +120,7 @@ public class DisbursementServiceImpl implements DisbursementService {
       } 
       savedDebursement.setReasonItems(reasonItemsList);
     } 
-    
+    savedDebursement.setIdentifier(formatRefID(savedDebursement));
     return savedDebursement;
   }
 
@@ -196,13 +204,21 @@ public class DisbursementServiceImpl implements DisbursementService {
 
   @Override
   public List<Debursement> getAllDisbursements() {
-    return this.debursementRepository.findAll();
+    List<Debursement> disburs = this.debursementRepository.findAll();
+    for(Debursement disb: disburs) {
+      disb.setIdentifier(formatRefID(disb));
+    }
+    return disburs;
   }
 
   
   @Override
   public List<Debursement> getDisbursementWaitingValidation() {
-    return this.debursementRepository.fetchDisbursementWaitingValidation();
+    List<Debursement> disburs = this.debursementRepository.fetchDisbursementWaitingValidation();
+    for(Debursement disb: disburs) {
+      disb.setIdentifier(formatRefID(disb));
+    }
+    return disburs;
   }
 
   
@@ -224,32 +240,36 @@ public class DisbursementServiceImpl implements DisbursementService {
     if (currentStep.intValue() < 1) {
       amountApproved = validateData.getAmountApproved();
       activatedDate = new Date();
-      currentStep = Integer.valueOf(1);
+      currentStep = 1;
     }
     else {
-      currentStep = Integer.valueOf(currentStep + 1);
+      currentStep += 1;
     } 
+
+    String action = validateData.getPayment()!=null && !validateData.getPayment().isBlank() 
+    ? "treated" : validateData.getActionValue();
 
     Integer saveResponset = debursementRepository.updateDisbursementToValidation(
       disbursId,
-      amountApproved,
+      action.equalsIgnoreCase("rejected") ? null : amountApproved,
       activatedDate,
       currentStep,
-      validateData.getActionValue()
+      action,
+      validateData.getPayment()!=null ? validateData.getPayment() : null
     );
     
     if (saveResponset!=1)
       return null;
       
-    ValidationAction action = new ValidationAction();
-    action.setDebursementId(disbursId);                              // request id
-    action.setUserId(validateData.getUserId());                      // validator id
-    action.setActionType(currentStep);                               // steps
-    action.setActionValue(validateData.getActionValue());            // approuved | confimed | rejected
-    action.setObservation(validateData.getObservation());
-    action.setValidatedDate(new Date());
+    ValidationAction actionReq = new ValidationAction();
+    actionReq.setDebursementId(disbursId);                              // request id
+    actionReq.setUserId(validateData.getUserId());                      // validator id
+    actionReq.setActionType(currentStep);                               // steps
+    actionReq.setActionValue(action);                                   // approuved | verified | rejected
+    actionReq.setObservation(validateData.getObservation());
+    actionReq.setValidatedDate(new Date());
     
-    ValidationAction savedValidation = validationActionRepository.save(action);
+    ValidationAction savedValidation = validationActionRepository.save(actionReq);
     
     return savedValidation;
   }
@@ -258,7 +278,10 @@ public class DisbursementServiceImpl implements DisbursementService {
   @Override
   public String getGeneratedRegistrationNumber() {
     String currentMonth = new SimpleDateFormat("MM").format(new Date());
-    String deb = debursementRepository.fetchCurrentMonthLastDisbursement(currentMonth);
+    String currentYear = new SimpleDateFormat("yyyy").format(new Date());
+    String deb = debursementRepository.fetchCurrentMonthLastDisbursement(currentYear, currentMonth);
+    if (deb==null) return String.format("%03d", 1);
+
     Integer nextNumber = 0;
     try {
       nextNumber = Integer.parseInt(deb.toString()) + 1;
@@ -268,6 +291,13 @@ public class DisbursementServiceImpl implements DisbursementService {
     return String.format("%03d", nextNumber);
   }
 
-  
+  @Autowired
+  private BudgetService budgetService;
+
+  private String formatRefID(Debursement disburs) {
+    BudgetIndex index = budgetService.getBudgetIndex(disburs.getBudgindexId());
+    BudgetarySector sector = budgetService.getBudgetarySector(index.getBudgsectorId());
+    return new SimpleDateFormat("yyMM").format(disburs.getCreatedOn()) + "/" + sector.getBudgsectorChar() + disburs.getIdentifier();
+  }  
 
 }

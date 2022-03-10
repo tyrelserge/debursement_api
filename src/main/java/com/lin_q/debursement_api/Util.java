@@ -37,4 +37,24 @@ public class Util
        e.getStackTrace();
     } 
   }
+
+  public static  String thousandSeparator(int n) 
+   {
+      String str=n+"";
+      StringBuilder sb=new StringBuilder();
+      for(int i=str.length()-1;i>=0;){
+         sb.append(str.charAt(i));
+         i--;
+         if(i==-1)break; 
+         sb.append(str.charAt(i));
+         i--;
+         if(i==-1)break;
+         sb.append(str.charAt(i));
+         i--;
+         if(i==-1)break;
+         sb.append(" ");
+      }
+      return sb.reverse().toString();
+   }
+
 }

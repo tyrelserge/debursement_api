@@ -9,4 +9,5 @@ public class ValidationReq {
     private Integer recipientId; 
     private String actionValue; 
     private String observation; 
+    private String payment;
 }

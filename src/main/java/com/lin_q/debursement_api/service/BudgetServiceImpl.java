@@ -260,4 +260,22 @@ public class BudgetServiceImpl implements BudgetService {
     
     return (Renewal)this.renewalRepository.save(renewal);
   }
+
+  @Override
+  public List<GroupedBudget> toSearchInputGroupedBudget(String input) {
+    return groupedBudgetRepository.fetchSearchInputGroupedBudget(input);
+  }
+
+  @Override
+  public List<BudgetIndex> toSearchInputIndexOfGroupedBudget(Integer groupedbudgetId, String input) {
+    return budgetIndexRepository.fetchSearchInputIndexOfGroupedBudget(groupedbudgetId, input);
+  }
+
+
+@Override
+public List<BudgetIndex> toSearchInputEmptyIndexOfGroupedBudget(Integer groupedbudgetId) {
+	return budgetIndexRepository.fetchSearchInputEmptyIndexOfGroupedBudget(groupedbudgetId);
+}
+
+
 }

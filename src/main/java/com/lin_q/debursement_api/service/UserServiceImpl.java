@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
       null, 
       userData.getLastname(), 
       userData.getFirstname(), 
-      userData.getCivility().equalsIgnoreCase("M") ? "H" : "F", 
+      userData.getCivility()!=null ? userData.getCivility().equalsIgnoreCase("M") ? "H" : "F" : null, 
       StringUtils.capitalize(userData.getCivility().toLowerCase()), 
       userData.getEmail(), 
       userData.getMobile(), 

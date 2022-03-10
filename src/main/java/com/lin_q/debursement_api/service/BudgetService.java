@@ -27,4 +27,8 @@ public interface BudgetService {
   Renewal toUpdateRenewal(Integer paramInteger, RenewalReq paramRenewalReq);
   Renewal toCreateGroupedbudgetRenewal(Integer paramInteger, RenewalReq paramRenewalReq);
   Renewal toCreateBudgetindexRenewal(Integer paramInteger, RenewalReq paramRenewalReq);
+  List<GroupedBudget> toSearchInputGroupedBudget(String input);
+  List<BudgetIndex> toSearchInputIndexOfGroupedBudget(Integer groupedbudgetId, String input);
+  List<BudgetIndex> toSearchInputEmptyIndexOfGroupedBudget(Integer groupedbudgetId);
+
 }
