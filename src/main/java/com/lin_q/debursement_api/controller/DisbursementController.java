@@ -1,16 +1,21 @@
 package com.lin_q.debursement_api.controller;
 
+import com.lin_q.debursement_api.Constants;
 import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
+import com.lin_q.debursement_api.entity.TempDisburs;
 import com.lin_q.debursement_api.entity.ValidationAction;
 import com.lin_q.debursement_api.model.DebursementReq;
 import com.lin_q.debursement_api.model.ReasonAssignReq;
 import com.lin_q.debursement_api.model.ReasonItemsReq;
 import com.lin_q.debursement_api.model.ResponseDto;
+import com.lin_q.debursement_api.model.TempDisbReq;
+import com.lin_q.debursement_api.model.TempDisbStatus;
 import com.lin_q.debursement_api.model.ValidationReq;
 import com.lin_q.debursement_api.service.DisbursementService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -115,5 +120,34 @@ public class DisbursementController
       ResponseEntity.ok(new ResponseDto<String>("ERROR", null));
   }
   
+  @GetMapping({"/temps"})
+  public ResponseEntity<ResponseDto<List<TempDisburs>>> TempsDisbursement() {
+    List<TempDisburs> res = disbursementService.getTempsDisburs(Sort.by(Sort.Direction.DESC, "temp_disb_id"));
+    return res!=null && !res.isEmpty() ? ResponseEntity.ok(new ResponseDto<List<TempDisburs>>(Constants.SUCCESS, res)) : 
+      ResponseEntity.ok(new ResponseDto<List<TempDisburs>>(Constants.ERROR, null));
+  }
+    
+  @GetMapping({"/temps/untreated"})
+  public ResponseEntity<ResponseDto<List<TempDisburs>>> UntreatedTempsDisbursement() {
+    List<TempDisburs> res = disbursementService.getUntreatedTempsDisburs();
+    return res!=null && !res.isEmpty() ? ResponseEntity.ok(new ResponseDto<List<TempDisburs>>(Constants.SUCCESS, res)) : 
+      ResponseEntity.ok(new ResponseDto<List<TempDisburs>>(Constants.ERROR, null));
+  }
+  
+  @PostMapping({"/create/temp"})
+  public ResponseEntity<ResponseDto<TempDisburs>> CreateTempDisbursement(@RequestBody TempDisbReq TempData) {
+    TempDisburs res = disbursementService.toCreateTempDisbursement(TempData);
+    return res!=null ? ResponseEntity.ok(new ResponseDto<TempDisburs>(Constants.SUCCESS, res)) : 
+      ResponseEntity.ok(new ResponseDto<TempDisburs>(Constants.ERROR, null));
+  }
+  
+
+  @PutMapping({"/process/temp/{tempdisbId}"})
+  public ResponseEntity<ResponseDto<TempDisburs>> SetTempDisbursement(
+    @PathVariable("tempdisbId") Integer tempdisbId, @RequestBody TempDisbStatus TempData) {
+    TempDisburs res = disbursementService.toSetTempDisbursementStatus(tempdisbId, TempData);
+    return res!=null ? ResponseEntity.ok(new ResponseDto<TempDisburs>(Constants.SUCCESS, res)) : 
+      ResponseEntity.ok(new ResponseDto<TempDisburs>(Constants.ERROR, null));
+  }
 
 }

@@ -1,6 +1,7 @@
 package com.lin_q.debursement_api.service;
 
 import com.lin_q.debursement_api.entity.Department;
+import com.lin_q.debursement_api.entity.FCMToken;
 import com.lin_q.debursement_api.entity.GeneralSetting;
 import com.lin_q.debursement_api.entity.Notification;
 import com.lin_q.debursement_api.entity.Notifuser;
@@ -9,6 +10,7 @@ import com.lin_q.debursement_api.entity.Profile;
 import com.lin_q.debursement_api.entity.Role;
 import com.lin_q.debursement_api.entity.User;
 import com.lin_q.debursement_api.model.DepartmentReq;
+import com.lin_q.debursement_api.model.FCMTokenReq;
 import com.lin_q.debursement_api.model.GSettingsReq;
 import com.lin_q.debursement_api.model.Login;
 import com.lin_q.debursement_api.model.NotificationReq;
@@ -53,5 +55,6 @@ public interface UserService {
   Notifuser setOpenedNotification(Integer notificationId);
   User setUserStatus(Integer userId, String status);
   List<User> getSearchUserByname(String byname);
-
+FCMToken toAddFCMToken(FCMTokenReq fcmToken);
+FCMToken getUserFCMToken(Integer userId);
 }

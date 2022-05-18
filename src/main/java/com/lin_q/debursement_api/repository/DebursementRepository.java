@@ -34,16 +34,28 @@ public interface DebursementRepository extends JpaRepository<Debursement, Intege
   @Query(value = "SELECT identifier FROM debursement WHERE year(created_on)=?1 AND month(created_on)=?2 ORDER BY debursement_id DESC LIMIT 1", nativeQuery = true)
   String fetchCurrentMonthLastDisbursement(String currentYear, String currentMonth);
 
-  @Query(value = "SELECT d.debursement_id, d.reason, s.budgsector_id, s.budgsector_name, g.groupedbudget_name, u.civility, u.firstname, u.lastname, d.identifier, d.created_on, d.activate_debursement, d.amount_requested, d.amount_approved, d.status "+
+  @Query(value = "SELECT d.debursement_id, d.reason, s.budgsector_id, s.budgsector_name, g.groupedbudget_name, u.civility, u.firstname, u.lastname, d.identifier, d.created_on, d.updated_on, d.amount_requested, d.amount_approved, d.status "+
   "FROM debursement d INNER JOIN user u, grouped_budget g, budget_index i, budgetary_sector s "+
   "WHERE i.budgindex_id = d.budgindex_id AND i.groupedbudget_id = g.groupedbudget_id AND s.budgsector_id = i.budgsector_id AND u.user_id = d.recipient_id "+
-  "AND s.budgsector_id=?1 AND d.created_on BETWEEN ?2 AND ?3' 23:59:59' ORDER BY d.debursement_id DESC", nativeQuery = true)  //  AND d.activate_debursement IS NOT NULL
+  "AND s.budgsector_id=?1 AND (d.created_on BETWEEN ?1 AND ?2 ' 23:59:59' OR d.updated_on BETWEEN ?1 AND ?2 ' 23:59:59') ORDER BY d.debursement_id DESC", nativeQuery = true)  //  AND d.activate_debursement IS NOT NULL
   List<Object[]> fetchDisbursementsByPeriodAndBgIndex(String budgindexId, String from, String to);
 
-  @Query(value = "SELECT d.debursement_id, d.reason, s.budgsector_id, s.budgsector_name, g.groupedbudget_name, u.civility, u.firstname, u.lastname, d.identifier, d.created_on, d.activate_debursement, d.amount_requested, d.amount_approved, d.status "+
+  @Query(value = "SELECT d.debursement_id, d.reason, s.budgsector_id, s.budgsector_name, g.groupedbudget_name, u.civility, u.firstname, u.lastname, d.identifier, d.created_on, d.updated_on, d.amount_requested, d.amount_approved, d.status "+
   "FROM debursement d INNER JOIN user u, grouped_budget g, budget_index i, budgetary_sector s "+
   "WHERE i.budgindex_id = d.budgindex_id AND i.groupedbudget_id = g.groupedbudget_id AND s.budgsector_id = i.budgsector_id AND u.user_id = d.recipient_id "+
-  "AND d.created_on BETWEEN ?1 AND ?2' 23:59:59' ORDER BY d.debursement_id DESC", nativeQuery = true) //  AND d.activate_debursement IS NOT NULL
+  "AND (d.created_on BETWEEN ?1 AND ?2 ' 23:59:59' OR d.updated_on BETWEEN ?1 AND ?2 ' 23:59:59') ORDER BY d.debursement_id DESC", nativeQuery = true) //  AND d.activate_debursement IS NOT NULL
   List<Object[]> fetchDisbursementsByPeriod(String from, String to);
+
+  @Query(value = "SELECT d.debursement_id, d.reason, s.budgsector_id, s.budgsector_name, g.groupedbudget_name, u.civility, u.firstname, u.lastname, d.identifier, d.created_on, d.updated_on, d.amount_requested, d.amount_approved, d.status "+
+  "FROM debursement d INNER JOIN user u, grouped_budget g, budget_index i, budgetary_sector s "+
+  "WHERE i.budgindex_id = d.budgindex_id AND i.groupedbudget_id = g.groupedbudget_id AND s.budgsector_id = i.budgsector_id AND u.user_id = d.recipient_id "+
+  "AND d.status='treated' AND s.budgsector_id=?1 AND d.updated_on BETWEEN ?1 AND ?2 ' 23:59:59' ORDER BY d.debursement_id DESC", nativeQuery = true)
+  List<Object[]> fetchTreatedDisbursementsByPeriodAndBgIndex(String sectorId, String from, String to);
+
+  @Query(value = "SELECT d.debursement_id, d.reason, s.budgsector_id, s.budgsector_name, g.groupedbudget_name, u.civility, u.firstname, u.lastname, d.identifier, d.created_on, d.updated_on, d.amount_requested, d.amount_approved, d.status "+
+  "FROM debursement d INNER JOIN user u, grouped_budget g, budget_index i, budgetary_sector s "+
+  "WHERE i.budgindex_id = d.budgindex_id AND i.groupedbudget_id = g.groupedbudget_id AND s.budgsector_id = i.budgsector_id AND u.user_id = d.recipient_id "+
+  "AND d.status='treated' AND d.updated_on BETWEEN ?1 AND ?2 ' 23:59:59' ORDER BY d.debursement_id DESC", nativeQuery = true)
+  List<Object[]> fetchTreatedDisbursementsByPeriod(String from, String to);
   
 }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.lin_q.debursement_api.entity.BudgetarySector;
 import com.lin_q.debursement_api.model.DebursementExcelData;
 import com.lin_q.debursement_api.repository.DebursementRepository;
 
@@ -38,10 +39,24 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     
     @Override    
     public List<DebursementExcelData> getDisbursementsByPeriod(String sectorId, String from, String to) {
-        List<Object[]> debs = !sectorId.equalsIgnoreCase("all") ? debursementRepository.fetchDisbursementsByPeriodAndBgIndex(sectorId, from, to)
+        List<Object[]> debs = !sectorId.equalsIgnoreCase("all") ? 
+            debursementRepository.fetchDisbursementsByPeriodAndBgIndex(sectorId, from, to)
             : debursementRepository.fetchDisbursementsByPeriod(from, to);
             return debs.stream().map(mapper->{
                 DebursementExcelData deb = new DebursementExcelData(mapper);
+                deb.setIdentifier(formatRefID(deb));
+                return deb;
+            }).collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<DebursementExcelData> getTreatedDisbursementsByPeriod(String sectorId, String from, String to) {
+        List<Object[]> debs = !sectorId.equalsIgnoreCase("all") ? 
+            debursementRepository.fetchTreatedDisbursementsByPeriodAndBgIndex(sectorId, from, to)
+            : debursementRepository.fetchTreatedDisbursementsByPeriod(from, to);
+            return debs.stream().map(mapper->{
+                DebursementExcelData deb = new DebursementExcelData(mapper);
+                deb.setIdentifier(formatRefID(deb));
                 return deb;
             }).collect(Collectors.toList());
     }
@@ -130,6 +145,18 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         }
 
     }
+
+    @Autowired
+    private BudgetService budgetService;
+
+    private String formatRefID(DebursementExcelData disburs) {
+        Integer budgetsectorId = Integer.parseInt(disburs.getBudgsectorId());
+        BudgetarySector sector = budgetService.getBudgetarySector(budgetsectorId);        
+        String createOn = disburs.getCreatedOn().toString();
+        createOn = createOn.replace("/", "").replace("-", "").substring(2, 6);
+        return createOn + "/" + sector.getBudgsectorChar() + disburs.getIdentifier();
+    }
+
 
     
 }

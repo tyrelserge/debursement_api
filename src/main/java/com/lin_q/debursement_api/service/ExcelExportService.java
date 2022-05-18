@@ -9,6 +9,7 @@ import com.lin_q.debursement_api.model.DebursementExcelData;
 public interface ExcelExportService {
 
     public List<DebursementExcelData> getDisbursementsByPeriod(String sectorId, String from, String to) throws ParseException;
+    public List<DebursementExcelData> getTreatedDisbursementsByPeriod(String sectorId, String from, String to);
     
     public ByteArrayInputStream disbursementReportByPeriod(List<DebursementExcelData> disbursementList, String sheetname);
 

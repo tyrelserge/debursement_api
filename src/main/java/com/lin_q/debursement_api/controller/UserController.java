@@ -2,6 +2,7 @@ package com.lin_q.debursement_api.controller;
 
 import com.lin_q.debursement_api.Constants;
 import com.lin_q.debursement_api.entity.Department;
+import com.lin_q.debursement_api.entity.FCMToken;
 import com.lin_q.debursement_api.entity.GeneralSetting;
 import com.lin_q.debursement_api.entity.Notification;
 import com.lin_q.debursement_api.entity.Notifuser;
@@ -10,6 +11,7 @@ import com.lin_q.debursement_api.entity.Profile;
 import com.lin_q.debursement_api.entity.Role;
 import com.lin_q.debursement_api.entity.User;
 import com.lin_q.debursement_api.model.DepartmentReq;
+import com.lin_q.debursement_api.model.FCMTokenReq;
 import com.lin_q.debursement_api.model.GSettingsReq;
 import com.lin_q.debursement_api.model.Login;
 import com.lin_q.debursement_api.model.MailData;
@@ -44,11 +46,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin("*")
 @RequestMapping({"/user"})
-public class UserController
-{
+public class UserController { 
+  
   @Autowired
   private UserService userService;
-
   
   @Autowired
   public JavaMailSender emailSender;
@@ -302,6 +303,23 @@ public class UserController
     List<User> res = this.userService.getSearchUserByname(byname);
     return (res != null) ? ResponseEntity.ok(new ResponseDto<List<User>>("SUCCESS", res)) : 
       ResponseEntity.ok(new ResponseDto<List<User>>("ERROR", null));
+  }
+
+
+  @GetMapping({"/fcm-token/{userId}"})  
+  public ResponseEntity<ResponseDto<FCMToken>> UserFCMToken(
+    @PathVariable("userId") Integer userId) {
+    FCMToken res = userService.getUserFCMToken(userId);
+    return res!=null ? ResponseEntity.ok(new ResponseDto<FCMToken>(Constants.SUCCESS, res)): 
+        ResponseEntity.ok(new ResponseDto<FCMToken>(Constants.ERROR, null));
+  }
+
+  // Save and update
+  @PostMapping({"/fcm-token"})  
+  public ResponseEntity<ResponseDto<FCMToken>> AddFCMToken(@RequestBody FCMTokenReq fcmToken) {
+    FCMToken res = userService.toAddFCMToken(fcmToken);
+    return res!=null ? ResponseEntity.ok(new ResponseDto<FCMToken>(Constants.SUCCESS, res)): 
+        ResponseEntity.ok(new ResponseDto<FCMToken>(Constants.ERROR, null));
   }
 
 

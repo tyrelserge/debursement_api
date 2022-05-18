@@ -54,6 +54,14 @@ public class ExportController {
                 ResponseEntity.ok(new ResponseDto<List<DebursementExcelData>>(Constants.ERROR, null));
     }
 
+    @GetMapping("/sector/{sectorId}/disbursement/{from}/{to}/treated")
+    public ResponseEntity<ResponseDto<List<DebursementExcelData>>> TreatedDisbursementReportByPeriod(HttpServletResponse httpServResponse,
+        @PathVariable("sectorId") String sectorId, @PathVariable("from") String from, @PathVariable("to") String to) throws IOException, ParseException {
+        List<DebursementExcelData> disbursementList = excelExportService.getTreatedDisbursementsByPeriod(sectorId, from, to);
+        return disbursementList!=null && !disbursementList.isEmpty() ? ResponseEntity.ok(new ResponseDto<List<DebursementExcelData>>(Constants.SUCCESS, disbursementList)) : 
+                ResponseEntity.ok(new ResponseDto<List<DebursementExcelData>>(Constants.ERROR, null));
+    }
+
     @GetMapping("/sector/{sectorId}/disbursement/{from}/{to}/to-excel")
     public ResponseEntity<InputStreamResource> ExportDisbursementReportByPeriod(HttpServletResponse httpServResponse,
         @PathVariable("sectorId") String sectorId, @PathVariable("from") String from, @PathVariable("to") String to) throws IOException, ParseException {
@@ -74,6 +82,25 @@ public class ExportController {
         //httpServResponse.setContentType("application/octet-stream");
         //httpServResponse.setHeader("Content-Disposition", "attachement; filename="+ sheetName);
         //IOUtils.copy(bais, httpServResponse.getOutputStream());
+    }
+
+    
+    @GetMapping("/sector/{sectorId}/disbursement/{from}/{to}/treated/to-excel")
+    public ResponseEntity<InputStreamResource> ExportTreatedDisbursementReportByPeriod(HttpServletResponse httpServResponse,
+        @PathVariable("sectorId") String sectorId, @PathVariable("from") String from, @PathVariable("to") String to) throws IOException, ParseException {
+
+        List<DebursementExcelData> disbursementList = excelExportService.getTreatedDisbursementsByPeriod(sectorId, from, to);
+
+        from = from.replace('/', '-');
+        to = to.replace('/', '-');
+        
+        String interval = !from.equals(to) ? "du_" + from +"_au_" + to : "du_" + to;
+        String sheetName = "Point_" + interval + ".xlsx";
+        ByteArrayInputStream bais = excelExportService.disbursementReportByPeriod(disbursementList, sheetName);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename="+ sheetName);
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(bais));
     }
 
     

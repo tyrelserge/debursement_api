@@ -274,8 +274,8 @@ public class PDFGeneratorServiceImpl implements PDFGeneratorService {
         table.addCell(cell);
 
         cell.setColspan(4);
-        cell.setPhrase(new Phrase((disbursement.getPayment()!=null ? disbursement.getPayment() + " - " : null) 
-        + "Le " + new SimpleDateFormat("dd/MM/yyyy").format(disbursement.getUpdatedOn())));
+        cell.setPhrase(new Phrase((disbursement.getPayment()!=null ? disbursement.getPayment() + " - " : "") 
+            + "Le " + new SimpleDateFormat("dd/MM/yyyy").format(disbursement.getUpdatedOn())));
         table.addCell(cell);
 
         // Validation line

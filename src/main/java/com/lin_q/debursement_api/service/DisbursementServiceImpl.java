@@ -10,16 +10,21 @@ import com.lin_q.debursement_api.entity.BudgetIndex;
 import com.lin_q.debursement_api.entity.BudgetarySector;
 import com.lin_q.debursement_api.entity.Debursement;
 import com.lin_q.debursement_api.entity.ReasonItems;
+import com.lin_q.debursement_api.entity.TempDisburs;
 import com.lin_q.debursement_api.entity.ValidationAction;
 import com.lin_q.debursement_api.exception.ResourceNotFoundException;
 import com.lin_q.debursement_api.model.DebursementReq;
 import com.lin_q.debursement_api.model.ReasonItemsReq;
+import com.lin_q.debursement_api.model.TempDisbReq;
+import com.lin_q.debursement_api.model.TempDisbStatus;
 import com.lin_q.debursement_api.model.ValidationReq;
 import com.lin_q.debursement_api.repository.DebursementRepository;
 import com.lin_q.debursement_api.repository.ReasonItemsRepository;
+import com.lin_q.debursement_api.repository.TempDisbursRepository;
 import com.lin_q.debursement_api.repository.ValidationActionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -298,6 +303,63 @@ public class DisbursementServiceImpl implements DisbursementService {
     BudgetIndex index = budgetService.getBudgetIndex(disburs.getBudgindexId());
     BudgetarySector sector = budgetService.getBudgetarySector(index.getBudgsectorId());
     return new SimpleDateFormat("yyMM").format(disburs.getCreatedOn()) + "/" + sector.getBudgsectorChar() + disburs.getIdentifier();
+  }
+  
+  @Autowired
+  private TempDisbursRepository tempDisbursRepository;
+  
+
+  @Override
+  public List<TempDisburs> getTempsDisburs(Sort sort) {
+    return tempDisbursRepository.findAll(sort);
+  }
+
+  @Override
+  public TempDisburs toCreateTempDisbursement(TempDisbReq tempData) {
+    TempDisburs tempDisburs = new TempDisburs();
+    tempDisburs.setTempFullname(tempData.getTempFullname());
+    tempDisburs.setTempMobile(tempData.getTempMobile());
+    tempDisburs.setTempAmount(tempData.getTempAmount());
+    tempDisburs.setTempReason(tempData.getTempReason());
+    tempDisburs.setTempAssignment(tempData.getTempAssignment());
+    tempDisburs.setTempGroupbudget(tempData.getTempGroupbudget());
+    tempDisburs.setTempStatus("submitted");
+    tempDisburs.setCreatedDate(new Date());
+    tempDisburs.setClaimantToken(tempData.getClaimantToken());
+    return tempDisbursRepository.save(tempDisburs);
+  }  
+
+  @Override
+  public TempDisburs toSetTempDisbursementStatus(Integer tempDisbId, TempDisbStatus tempData) {
+
+    Optional<TempDisburs> optional = tempDisbursRepository.findById(tempDisbId);
+    
+    if (!optional.isPresent())
+      return null;
+
+    TempDisburs current = optional.get();
+
+    TempDisburs tempDisburs = new TempDisburs();
+    tempDisburs.setTempDisbId(current.getTempDisbId());
+    tempDisburs.setTempFullname(current.getTempFullname());
+    tempDisburs.setTempMobile(current.getTempMobile());
+    tempDisburs.setTempAmount(current.getTempAmount());
+    tempDisburs.setTempReason(current.getTempReason());
+    tempDisburs.setCreatedDate(current.getCreatedDate());
+    tempDisburs.setTempAssignment(current.getTempAssignment());
+    tempDisburs.setTempGroupbudget(current.getTempGroupbudget());
+    tempDisburs.setClaimantToken(current.getClaimantToken());
+    
+    tempDisburs.setTempStatus(tempData.getStatus());    // treated or submitted
+    tempDisburs.setTreatedBy(tempData.getTreatedBy());  // Moderator id
+    tempDisburs.setUpdateOn(new Date());
+
+    return tempDisbursRepository.save(tempDisburs);
+  }
+
+  @Override
+  public List<TempDisburs> getUntreatedTempsDisburs() {
+    return tempDisbursRepository.fetchUntreatedTempsDisburs();
   }  
 
 }

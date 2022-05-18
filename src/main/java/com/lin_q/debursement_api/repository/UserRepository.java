@@ -15,6 +15,7 @@ import java.util.List;
 @Transactional
 public interface UserRepository extends JpaRepository<User, Integer> {
   Optional<User> findByEmail(String paramString);
+  Optional<User> findByMobile(String paramString);
 
   @Modifying
   @Query(value = "UPDATE user SET status=:status WHERE user_id=:userid", nativeQuery = true)
@@ -22,4 +23,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
   @Query(value = "SELECT * FROM user WHERE lastname LIKE :lastname% OR firstname LIKE %:firstname%", nativeQuery = true)
   List<User> fetchUserbyFilds(@Param("lastname") String lastname, @Param("firstname") String firstname);
+
 }

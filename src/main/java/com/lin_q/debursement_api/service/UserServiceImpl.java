@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.lin_q.debursement_api.Constants;
 import com.lin_q.debursement_api.entity.ActionRequest;
 import com.lin_q.debursement_api.entity.Department;
+import com.lin_q.debursement_api.entity.FCMToken;
 import com.lin_q.debursement_api.entity.GeneralSetting;
 import com.lin_q.debursement_api.entity.Notification;
 import com.lin_q.debursement_api.entity.Notifuser;
@@ -19,6 +20,7 @@ import com.lin_q.debursement_api.entity.Upwd;
 import com.lin_q.debursement_api.entity.User;
 import com.lin_q.debursement_api.exception.ResourceNotFoundException;
 import com.lin_q.debursement_api.model.DepartmentReq;
+import com.lin_q.debursement_api.model.FCMTokenReq;
 import com.lin_q.debursement_api.model.GSettingsReq;
 import com.lin_q.debursement_api.model.Login;
 import com.lin_q.debursement_api.model.NotificationReq;
@@ -30,6 +32,7 @@ import com.lin_q.debursement_api.model.RoleReq;
 import com.lin_q.debursement_api.model.UserReq;
 import com.lin_q.debursement_api.repository.ActionRequestRepository;
 import com.lin_q.debursement_api.repository.DepartmentRepository;
+import com.lin_q.debursement_api.repository.FCMTokenRepository;
 import com.lin_q.debursement_api.repository.GeneralSettingRepository;
 import com.lin_q.debursement_api.repository.NotificationRepository;
 import com.lin_q.debursement_api.repository.NotifuserRepository;
@@ -116,9 +119,8 @@ public class UserServiceImpl implements UserService {
 
 
   public User getUserData(Integer userId) {
-    User user = (User)this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("The user id " + userId + " is not found"));
-
-    
+    User user = (User)this.userRepository.findById(userId).orElseThrow(
+      () -> new ResourceNotFoundException("The user id " + userId + " is not found"));    
     return user;
   }
 
@@ -128,9 +130,12 @@ public class UserServiceImpl implements UserService {
 
     Optional<User> optional = this.userRepository.findByEmail(userData.getEmail().trim());
     if (optional.isPresent()) {
-      return Constants.EXISTS;
+      if (optional.get().getStatus().equalsIgnoreCase("provider")) {
+        return optional.get();
+      } else {
+        return Constants.EXISTS;
+      }
     }
-
     
     User user = new User(
       null, 
@@ -191,8 +196,18 @@ public class UserServiceImpl implements UserService {
     if(loginData.getUsername()==null || loginData.getPassword()==null)
       return null;
 
-    Optional<User> optional = this.userRepository.findByEmail(loginData.getUsername().trim());
-    if (!optional.isPresent()) return null;
+    Optional<User> optional;
+
+    Optional<User> optionalEmail = this.userRepository.findByEmail(loginData.getUsername().trim());
+    
+    if (optionalEmail.isPresent()) { 
+      optional=optionalEmail;
+    } else {
+      Optional<User> optionalMobile = this.userRepository.findByMobile(loginData.getUsername().trim());
+      if (!optionalMobile.isPresent()) return null;
+      optional = optionalMobile;
+    }
+
     User user = optional.get();
     
     String loginPwd = loginData.getPassword();
@@ -437,7 +452,35 @@ public class UserServiceImpl implements UserService {
 
     return users;
   }
-  
 
+  @Autowired
+  private FCMTokenRepository fcmTokenRepository;
+
+  @Override
+  public FCMToken toAddFCMToken(FCMTokenReq tokenData) {
+    Optional<FCMToken> optional = fcmTokenRepository.findByUserId(tokenData.getUserId());
+
+    FCMToken fcmToken = new FCMToken();
+
+    if (optional.isPresent()) {
+      fcmToken.setFcmTokenId(optional.get().getFcmTokenId());
+      fcmToken.setUserId(optional.get().getUserId());
+      fcmToken.setFcmTokenAccess(tokenData.getFcmTokenAccess());
+      fcmToken.setFcmTokenUpdatedOn(new Date());
+    } else {
+      fcmToken.setUserId(tokenData.getUserId());
+      fcmToken.setFcmTokenAccess(tokenData.getFcmTokenAccess());
+      fcmToken.setFcmTokenUpdatedOn(new Date());
+    }
+    
+    return fcmTokenRepository.save(fcmToken);
+  }
+
+
+  @Override
+  public FCMToken getUserFCMToken(Integer userId) {
+    return fcmTokenRepository.findByUserId(userId).orElseThrow(
+      ()-> new ResourceNotFoundException("Token non trouvé"));
+  }
 
 }

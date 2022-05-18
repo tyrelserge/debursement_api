@@ -16,7 +16,7 @@ public class DebursementExcelData {
     private String lastname;
     private String identifier;
     private String createdOn;
-    private String activateDebursement;
+    private String updatedOn;
     private String amountRequested;
     private String amountApproved;
     private String status;
@@ -32,7 +32,7 @@ public class DebursementExcelData {
         this.lastname = String.valueOf(list[7]);
         this.identifier = String.valueOf(list[8]);
         this.createdOn = String.valueOf(list[9]);
-        this.activateDebursement = String.valueOf(list[10]);
+        this.updatedOn = String.valueOf(list[10]);
         this.amountRequested = String.valueOf(list[11]);
         this.amountApproved = String.valueOf(list[12]);
         this.status = String.valueOf(list[13]);
